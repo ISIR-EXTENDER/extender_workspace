@@ -1,0 +1,13 @@
+repositories:
+  control_interfaces:
+    type: git
+    url: https://gitlab.isir.upmc.fr/extender/control_interfaces.git
+    version: main 
+  controllers:
+    type: git
+    url: https://gitlab.isir.upmc.fr/extender/controllers.git
+    version: main
+  robot_interfaces:
+    type: git
+    url: https://gitlab.isir.upmc.fr/extender/robot_interfaces.git
+    version: main
