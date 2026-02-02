@@ -1,7 +1,10 @@
 # Ignore submodules
-control_interfaces/
+input_interfaces/
 controllers/
 robot_interfaces/
+tools/
+qontrol_controllers/
+explorer_stack/
 
 # Ignore build, install, and log directories
 /build/
