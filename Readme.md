@@ -1,32 +1,95 @@
-# Extender Workspace 
+# Extender Workspace
 
-This is the main workspace for the extender project. 
+This is the main workspace for the extender project.
 
-## How to install ? 
+## Installation
 
-First clone this repo in the `src` directory of your ros2 workspace
-```
+### Prerequisites (Ubuntu + ROS 2 Humble)
+
+- Ubuntu 22.04 LTS
+- ROS 2 Humble (installed via official instructions)
+- Tools: `python3-rosdep`, `vcs`, `git`, `colcon-common-extensions`
+
+1) Create the workspace and clone this repo
+
+```bash
+# from the src folder of your ROS 2 workspace
+cd ~/ros2_humble_ws/src
 git clone https://gitlab.isir.upmc.fr/extender/extender_workspace.git
+cd ..
 ```
-For now all sub repos are private, so you need to setup git credential helper to clone everything. This wya you only need to enter your credentials on the first repo cloning.
-```
-git config --local credential.helper
+
+2) Configure git access (optional, for private repos)
+
+```bash
+# cache credentials temporarily for 1 hour
 git config --local credential.helper 'cache --timeout=3600'
 ```
 
-Then use vcs to clone all the subdirectories of the extender project. 
-```
-cd extender_workspace
+3) Clone all sub-repositories
+
+```bash
+cd src/extender_workspace
+# imports repos listed in extender.repos
 vcs import --input extender.repos --workers 1
 ```
 
-Afterwards, it is important to compile first the robot_interfaces package, which allows all controllers to be used on any robots of the project.
-```
-colcon build --symlink-install --packages-up-to robot_interfaces
-source install/setup.zsh # or bash if you are using bash
+4) Install system and ROS dependencies
+
+```bash
+# minimal installation (adjust based on your packages)
+sudo apt update
+sudo apt install -y \
+	build-essential \
+	cmake \
+	python3-colcon-common-extensions \
+	python3-rosdep \
+	python3-vcstool \
+	git \
+	pkg-config \
+	libeigen3-dev \
+	ros-humble-cv-bridge \
+	ros-humble-image-transport \
+	ros-humble-apriltag \
+	ros-humble-apriltag-ros \
+	ros-humble-usb-cam
+
+# initialize rosdep if not already done
+sudo rosdep init || true
+rosdep update
+
+cd ~/ros2_humble_ws
+rosdep install --from-paths src --ignore-src -r -y
 ```
 
-Then controllers and control interfaces can be compiled
+5) Build robot_interfaces first (other packages depend on it)
+
+```bash
+colcon build --symlink-install --packages-up-to robot_interfaces
+source install/setup.zsh  # or source install/setup.bash if using bash
 ```
-colcon build
+
+6) Build all remaining packages
+
+```bash
+colcon build --symlink-install
 ```
+
+## Submodules
+
+Main submodules and directories in `extender_workspace`:
+
+- **`controllers/`** — ROS2 controller implementations (components and plugins) for robot control (e.g., `cartesian_velocity`, `joint_position_interpolator`, `kinematic_guides_cartesian_velocity`).
+- **`input_interfaces/`** — Input device nodes and interfaces (joystick, teleoperation) that convert user commands into robot messages/commands.
+- **`robot_interfaces/`** — Robot abstraction library (command/state interfaces, kinematics algorithms) used by controllers to support different robot types.
+- **`tools/`** — Utility packages (e.g., `apriltag_detector`, `mediapipe_mocap`, `offline_media_publisher`, `extender_msgs` for shared message definitions).
+- **`extender.repos`** — VCS configuration file listing repositories to import (used by `vcs import`).
+
+For package-specific details, see each local README (e.g., `tools/apriltag_detector/Readme.md`) for specific instructions and optional dependencies.
+
+## Notes & Tips
+
+- Use `install/setup.zsh` for zsh shell or `install/setup.bash` for bash.
+- Some optional packages (e.g., Franka support) require external dependencies; enable them in CMake options if needed.
+- If `rosdep install` fails for pip packages not in apt, install them manually (`pip3 install --user <package>`).
+- To rebuild a single package after modifications: `colcon build --packages-select <package_name>`.
