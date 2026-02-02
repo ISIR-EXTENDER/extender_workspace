@@ -1,13 +1,25 @@
 repositories:
-  control_interfaces:
+  input_interfaces:
     type: git
-    url: https://gitlab.isir.upmc.fr/extender/control_interfaces.git
+    url: https://github.com/ISIR-EXTENDER/input_interfaces.git
     version: main 
   controllers:
     type: git
-    url: https://gitlab.isir.upmc.fr/extender/controllers.git
+    url: https://github.com/ISIR-EXTENDER/controllers.git
     version: main
   robot_interfaces:
     type: git
-    url: https://gitlab.isir.upmc.fr/extender/robot_interfaces.git
+    url: https://github.com/ISIR-EXTENDER/robot_interfaces.git
     version: main
+  tools:
+    type: git
+    url: https://github.com/ISIR-EXTENDER/tools.git
+    version: main
+  qontrol_controllers:
+    type: git
+    url: https://github.com/ISIR-EXTENDER/qontrol_controller.git
+    version: refactor/chained_controller
+  explorer_stack:
+    type: git
+    url: https://github.com/ISIR-EXTENDER/explorer_stack.git
+    version: refactor/launch_and_controllers
