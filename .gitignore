@@ -1,15 +1,14 @@
-# Ignore submodules
-input_interfaces/
-controllers/
-robot_interfaces/
-tools/
-qontrol_controllers/
-explorer_stack/
+# Ignore submodules in src directory
+src/*
+
+# Except for README.md in src that insures the directory is tracked
+!src/README.md
 
 # Ignore build, install, and log directories
 /build/
 /install/
 /log/
+/docs/
 
 # Ignore generated files and caches
 *.pyc
@@ -26,6 +25,7 @@ __pycache__/
 
 # Ignore vscode workspace config
 *.vscode
+*.code-workspace
 
 # Plots
 *.jpg
@@ -33,3 +33,6 @@ __pycache__/
 # Ignore local data
 data/*
 rosbag*
+
+# Ignore uv python env
+.venv/
