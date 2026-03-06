@@ -23,3 +23,11 @@ repositories:
     type: git
     url: https://github.com/ISIR-EXTENDER/explorer_stack.git
     version: refactor/launch_and_controllers
+  hub:
+    type: git
+    url: https://github.com/ISIR-EXTENDER/hub
+    version: main
+  extender-ui:
+    type: git
+    url: https://github.com/ISIR-EXTENDER/extender_ui
+    version: main
