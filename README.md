@@ -33,7 +33,7 @@ git config --local credential.helper 'cache --timeout=3600'
 ```bash
 cd src/extender_workspace
 # imports repos listed in extender.repos
-vcs import --input extender.repos --workers 1
+vcs import src < extender.repos --workers 1
 ```
 
 4) Install system and ROS dependencies
