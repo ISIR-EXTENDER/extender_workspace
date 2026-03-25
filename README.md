@@ -1,136 +1,119 @@
 # Extender Workspace
 
-This is the main workspace for the extender project.
+Extender Workspace is the top-level ROS 2 monorepo manager for the Extender project. It centralizes repository composition and dependency setup for all Extender packages, including motion controllers, input devices, kinematics libraries, simulation tools, and UIs.
 
-## Installation
+## Quick install (recommended)
 
-### Prerequisites (Ubuntu + ROS 2 Humble)
-
-- Ubuntu 22.04 LTS
-- ROS 2 Humble (installed via official instructions)
-- Python 3.10+
-- uv (Python package manager)
-- Tools: `python3-rosdep`, `vcs`, `git`, `colcon-common-extensions`
-
-1) Create the workspace and clone this repo
+A helper script is included to automate setup from a clean Ubuntu + ROS2 environment. From the workspace root:
 
 ```bash
-# from the src folder of your ROS 2 workspace
-cd ~/ros2_humble_ws/src
-git clone https://github.com/ISIR-EXTENDER/extender_workspace.git
-cd ..
+`git config --global credential.helper cache --timeout=3600`
+chmod +x install_extender.sh
+./install_extender.sh
 ```
 
-2) Configure git access (optional, for private repos)
+Optional flags:
+
+- `--no-uv` skip `uv` Python environment setup
+- `--rosdistro <distro>` choose a ROS distribution (default: humble)
+- `--workspace <path>` target workspace path (default: `~/ros2_humble_ws`)
+
+## Quick overview
+
+- Root path: `extender_workspace`
+- VCS entrypoint: `extender.repos`
+- Recommended ROS distribution: **ROS 2 Humble Hawksbill**
+- Target Ubuntu release: **22.04 LTS**
+- Build toolchain: `colcon` + `colcon-common-extensions`
+- Optional Python environment manager: `uv`
+
+## Repositories controlled by `extender.repos`
+
+`extender.repos` imports:
+
+- `input_interfaces` (main branch)
+- `controllers` (main branch)
+- `robot_interfaces` (main branch)
+- `tools` (main branch)
+- `qontrol_controllers` (branch: `refactor/chained_controller`)
+- `explorer_stack` (main branch)
+- `hub` (main branch)
+- `extender-ui` (main branch)
+- `sandbox_controller` (main branch)
+
+These repositories are intended to be checked out under `extender_workspace/src/` via `vcs import`.
+
+## Setup and installation
+
+A helper script is included to automate setup from a clean Ubuntu + ROS2 environment. From the workspace root:
 
 ```bash
-# cache credentials temporarily for 1 hour
-git config --local credential.helper 'cache --timeout=3600'
+chmod +x install_extender.sh
+./install_extender.sh
 ```
 
-3) Clone all sub-repositories
-
-```bash
-cd src/extender_workspace
-# imports repos listed in extender.repos
-vcs import src < extender.repos --workers 1
-```
-
-4) Install system and ROS dependencies
-
-```bash
-# minimal installation (adjust based on your packages)
-sudo apt update
-sudo apt install -y \
-	build-essential \
-	cmake \
-	python3-colcon-common-extensions \
-	python3-rosdep \
-	python3-vcstool \
-	git \
-	pkg-config \
-	libeigen3-dev \
-	ros-humble-cv-bridge \
-	ros-humble-image-transport \
-	ros-humble-apriltag \
-	ros-humble-apriltag-ros \
-	ros-humble-usb-cam
-
-# initialize rosdep if not already done
-sudo rosdep init || true
-rosdep update
-
-cd ~/ros2_humble_ws
-rosdep install --from-paths src --ignore-src -r -y
-```
-
-4b) Set up Python dependencies with uv
-
-```bash
-# from workspace root
-cd ~/ros2_humble_ws/src/extender_workspace
-
-# create venv and install base deps from pyproject.toml
-uv venv
-uv sync
-
-# optional extras
-uv sync --extra dev
-uv sync --extra vision
-uv sync --extra ros-build --extra dev --extra vision
-```
-
-5) Build robot_interfaces first (other packages depend on it)
-
-```bash
-colcon build --symlink-install --packages-up-to robot_interfaces
-source install/setup.zsh  # or source install/setup.bash if using bash
-```
-
-6) Build all remaining packages
-
-```bash
-colcon build --symlink-install
-```
-
-## Submodules
-
-Main submodules and directories in `extender_workspace`:
-
-- **`controllers/`** — ROS2 controller implementations (components and plugins) for robot control (e.g., `cartesian_velocity`, `joint_position_interpolator`, `kinematic_guides_cartesian_velocity`).
-- **`input_interfaces/`** — Input device nodes and interfaces (joystick, teleoperation) that convert user commands into robot messages/commands.
-- **`robot_interfaces/`** — Robot abstraction library (command/state interfaces, kinematics algorithms) used by controllers to support different robot types.
-- **`tools/`** — Utility packages (e.g., `apriltag_detector`, `mediapipe_mocap`, `offline_media_publisher`, `extender_msgs` for shared message definitions).
-- **`extender.repos`** — VCS configuration file listing repositories to import (used by `vcs import`).
-
-For package-specific details, see each local README (e.g., `tools/apriltag_detector/Readme.md`) for specific instructions and optional dependencies.
-
-## Folder architecture
+## Directory structure
 
 ```
 extender_workspace/
-├── controllers/
-├── input_interfaces/
-├── robot_interfaces/
-├── tools/
 ├── extender.repos
-├── pyproject.toml      # uv dependency definition
-├── uv.lock             # locked Python environment
+├── pyproject.toml
+├── uv.lock
+├── src/  # imported repositories
+│   ├── input_interfaces/
+│   ├── controllers/
+│   ├── robot_interfaces/
+│   ├── tools/
+│   ├── qontrol_controllers/
+│   ├── explorer_stack/
+│   ├── hub/
+│   ├── extender-ui/
+│   ├── sandbox_controller/
+└── README.md
 ```
 
-## Notes & Tips
+## Core components
 
-- Use `install/setup.zsh` for zsh shell or `install/setup.bash` for bash.
-- If you use `uv venv`, activate it with `source .venv/bin/activate` before running Python tools.
-- Some optional packages (e.g., Franka support) require external dependencies; enable them in CMake options if needed.
-- If `rosdep install` fails for pip packages not in apt, install them manually (`pip3 install --user <package>`).
-- To rebuild a single package after modifications: `colcon build --packages-select <package_name>`.
+- `robot_interfaces`: hardware-agnostic command/state layers, kinematics, path planning helpers.
+- `controllers`: low-level and high-level control plugins (joint/cartesian, pick/place flow, etc.).
+- `input_interfaces`: joystick, teleop, VR and interface bridging nodes (ROS topics/services).
+- `tools`: perception bindings, calibration utilities, message packages, simulators.
+- `qontrol_controllers`: chained controller to allow to use quadratic programming controller as low level controller.
+- `explorer_stack`: integrated stack with explorer-specific launch and config.
+- `hub`: docking and orchestration utilities.
+- `extender-ui`: UI frontend for monitoring/control.
+- `sandbox_controller`: development sandbox / quick prototyping controller.
 
-### Using uv
+## Development workflow
 
-- Create a virtual environment: `uv venv`
-- Install/sync dependencies: `uv sync`
-- Install with extras: `uv sync --extra ros-build --extra dev --extra vision`
-- Update dependencies: `uv sync --upgrade`
-- Add a dependency: `uv add <package>`
-- Add a dev dependency: `uv add --dev <package>`
+1. Checkout feature branch in each repository, maintain clean dependency graph.
+2. Use `ros2 run` and `ros2 launch` from built workspace after sourcing.
+3. Run tests per package:
+
+```bash
+colcon test --packages-select <package_name>
+colcon test-result --verbose
+```
+
+4. Rebuild changed packages:
+
+```bash
+colcon build --symlink-install --packages-select <package_name>
+```
+
+5. Use `colcon graph` for dependency introspection if supported.
+
+## Troubleshooting
+
+- If your build fails with missing package, run `rosdep install --from-paths src --ignore-src -r -y` again.
+- If it fails from conflicting versions or missing system libs, verify `apt` packages and ensure local branch matches `extender.repos` entries.
+- For `.venv`/`uv` Python issues, remove and recreate env:
+
+```bash
+rm -rf .venv
+uv venv
+uv sync
+```
+
+- Use `colcon build --packages-select <package_name> --cmake-clean-cache` if stale CMake configuration seems stuck.
+
