@@ -22,12 +22,20 @@ repositories:
   explorer_stack:
     type: git
     url: https://github.com/ISIR-EXTENDER/explorer_stack.git
-    version: refactor/launch_and_controllers
+    version: main
   hub:
     type: git
     url: https://github.com/ISIR-EXTENDER/hub
     version: main
   extender-ui:
     type: git
-    url: https://github.com/ISIR-EXTENDER/extender_ui
+    url: https://github.com/ISIR-EXTENDER/extender_ui.git
+    version: main
+  sandbox_controller:
+    type: git
+    url: https://github.com/ISIR-EXTENDER/sandbox_controller.git
+    version : main
+  ros2_kortex:
+    type: git 
+    url : https://github.com/Kinovarobotics/ros2_kortex.git
     version: main
