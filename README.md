@@ -18,7 +18,7 @@ For tablet-based integration tests, the current stable operator path is:
 ```text
 extender_ui
   -> input_interfaces/tablet_interface
-  -> controllers/sandbox_controller
+  -> sandbox_controller
   -> robot_interfaces + tools
 ```
 
@@ -52,6 +52,8 @@ workflows and should not be used as the default template for new development.
   UI/backend pipeline can be tested from the same local checkout.
 - `extender_ui` is imported through `extender.repos` so frontend/backend work can
   be kept in one local workspace.
+- `sandbox_controller` is imported as its own repository and should be used as
+  the default starting point for new controller prototypes.
 - Generated ROS folders (`build*`, `install*`, `log*`) are local artifacts and
   should never be committed.
 - Ubuntu 24.04 and the next ROS 2 distribution are an active migration target,
@@ -63,7 +65,8 @@ Repositories imported by `extender.repos`:
 
 | Folder | Repository | Purpose |
 | --- | --- | --- |
-| `src/controllers` | `ISIR-EXTENDER/controllers` | Robot and sandbox controllers, including `sandbox_controller`. |
+| `src/controllers` | `ISIR-EXTENDER/controllers` | Shared robot controllers such as Cartesian velocity, joint interpolation, and shared-control controllers. |
+| `src/sandbox_controller` | `ISIR-EXTENDER/sandbox_controller` | Reference sandbox controller for new controller prototypes and UI/backend smoke tests. |
 | `src/input_interfaces` | `ISIR-EXTENDER/input_interfaces` | Input/backend packages, including `tablet_interface`. |
 | `src/robot_interfaces` | `ISIR-EXTENDER/robot_interfaces` | Shared robot abstractions and ROS messages. |
 | `src/tools` | `ISIR-EXTENDER/tools` | Tools such as `apriltag_detector` and shared message packages. |

@@ -7,6 +7,10 @@ repositories:
     type: git
     url: https://github.com/ISIR-EXTENDER/controllers.git
     version: main
+  sandbox_controller:
+    type: git
+    url: https://github.com/ISIR-EXTENDER/sandbox_controller.git
+    version: main
   robot_interfaces:
     type: git
     url: https://github.com/ISIR-EXTENDER/robot_interfaces.git
