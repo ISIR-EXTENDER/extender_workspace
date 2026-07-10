@@ -15,6 +15,10 @@ repositories:
     type: git
     url: https://github.com/ISIR-EXTENDER/tools.git
     version: main
+  visual_servoing:
+    type: git
+    url: https://github.com/ISIR-EXTENDER/visual_servoing.git
+    version: main
   qontrol_controllers:
     type: git
     url: https://github.com/ISIR-EXTENDER/qontrol_controller.git
