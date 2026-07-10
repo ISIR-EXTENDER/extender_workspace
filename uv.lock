@@ -283,6 +283,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "lark" },
     { name = "pydantic" },
+    { name = "pyyaml" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "websockets" },
 ]
@@ -317,6 +318,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.6" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23" },
+    { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.27" },
     { name = "websockets", specifier = ">=12" },

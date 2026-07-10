@@ -8,6 +8,9 @@ src/*
 /build/
 /install/
 /log/
+/build.*/
+/install.*/
+/log.*/
 /docs/
 
 # Ignore generated files and caches
