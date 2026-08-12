@@ -2,15 +2,16 @@
 
 `extender_workspace` is the ROS 2 workspace entry point for the ISIR Extender
 robot control stack. It brings together the robot abstraction layer,
-controllers, robot-specific integrations, tooling, and operator input packages
-needed to build and test Extender controller workflows from one checkout.
+the active controller, manager layer, robot-specific integrations, tooling, and
+operator input packages needed to build and test Extender workflows from one
+checkout.
 
 The core control architecture is:
 
 ```text
-robot_interfaces
-  -> controllers
-  -> robot integrations, tools, and input_interfaces
+operator inputs and robot integrations
+  -> cartesian_manager
+  -> qontrol_controller
 ```
 
 For tablet-based integration tests, the current stable operator path is:
@@ -18,13 +19,14 @@ For tablet-based integration tests, the current stable operator path is:
 ```text
 extender_ui
   -> input_interfaces/tablet_interface
-  -> sandbox_controller
-  -> robot_interfaces + tools
+  -> cartesian_manager
+  -> qontrol_controller
 ```
 
-New controller and teleoperation workflows should use **Sandbox V0.0** as the
-reference integration setup. Petanque packages are kept as legacy/example
-workflows and should not be used as the default template for new development.
+New teleoperation workflows should go through `cartesian_manager` and keep robot
+control authority in `qontrol_controller`. Older standalone controller packages
+and Petanque packages are kept as legacy/example workflows and should not be
+used as the default template for new development.
 
 <p align="center">
   <img alt="ROS 2" src="https://img.shields.io/badge/ROS%202-Humble-22314e?style=for-the-badge" />
@@ -48,12 +50,11 @@ workflows and should not be used as the default template for new development.
 - Workspace-level `pyproject.toml` and `uv.lock`.
 - Shared Python dependencies for `tablet_interface`, ROS build helpers, tests,
   and optional vision tools.
-- `visual_servoing` is included in the workspace manifest so the visual servoing
-  UI/backend pipeline can be tested from the same local checkout.
 - `extender_ui` is imported through `extender.repos` so frontend/backend work can
   be kept in one local workspace.
-- `sandbox_controller` is imported as its own repository and should be used as
-  the default starting point for new controller prototypes.
+- `qontrol_controller` is the active robot controller integration.
+- `cartesian_manager` is the coordination layer between operator command sources
+  and `qontrol_controller`.
 - Generated ROS folders (`build*`, `install*`, `log*`) are local artifacts and
   should never be committed.
 - Ubuntu 24.04 and the next ROS 2 distribution are an active migration target,
@@ -65,15 +66,11 @@ Repositories imported by `extender.repos`:
 
 | Folder | Repository | Purpose |
 | --- | --- | --- |
-| `src/controllers` | `ISIR-EXTENDER/controllers` | Shared robot controllers such as Cartesian velocity, joint interpolation, and shared-control controllers. |
-| `src/sandbox_controller` | `ISIR-EXTENDER/sandbox_controller` | Reference sandbox controller for new controller prototypes and UI/backend smoke tests. |
 | `src/input_interfaces` | `ISIR-EXTENDER/input_interfaces` | Input/backend packages, including `tablet_interface`. |
-| `src/robot_interfaces` | `ISIR-EXTENDER/robot_interfaces` | Shared robot abstractions and ROS messages. |
 | `src/tools` | `ISIR-EXTENDER/tools` | Tools such as `apriltag_detector` and shared message packages. |
-| `src/visual_servoing` | `ISIR-EXTENDER/visual_servoing` | Robin's visual servoing package and AprilTag-based control pipeline. |
-| `src/qontrol_controllers` | `ISIR-EXTENDER/qontrol_controller` | Qontrol controller integration. |
+| `src/qontrol_controllers` | `ISIR-EXTENDER/qontrol_controller` | Active controller integration for robot motion. |
+| `src/cartesian_manager` | `ISIR-EXTENDER/cartesian_manager` | Manager layer that routes Cartesian commands and named joint targets to `qontrol_controller`. |
 | `src/explorer_stack` | `ISIR-EXTENDER/explorer_stack` | Explorer robot stack and `explorer_input_devices`. |
-| `src/hub` | `ISIR-EXTENDER/hub` | Hub and digital output integration. |
 | `src/extender-ui` | `ISIR-EXTENDER/extender_ui` | React tablet frontend and screen builder. |
 
 Local-only generated folders:
@@ -161,7 +158,7 @@ rosdep install --from-paths src --ignore-src -r -y
 ### 6. Build
 
 ```bash
-colcon build --symlink-install --packages-up-to robot_interfaces
+colcon build --symlink-install --packages-up-to cartesian_manager
 source install/setup.bash
 colcon build --symlink-install
 ```
@@ -293,7 +290,7 @@ npm install
 npm run dev
 ```
 
-Use **Sandbox V0.0** for new integration tests.
+Use `cartesian_manager` plus `qontrol_controller` for new integration tests.
 
 ### Run Backend Tests
 
@@ -333,7 +330,7 @@ Build only what you need:
 
 ```bash
 colcon build --symlink-install --packages-select tablet_interface
-colcon build --symlink-install --packages-select sandbox_controller
+colcon build --symlink-install --packages-select cartesian_manager
 ```
 
 ### A Camera Is Busy
@@ -349,8 +346,8 @@ robot UI platform. It is being developed as a monorepo that combines frontend,
 backend API, widget contracts, runtime safety rules, storage, and ROS adapters.
 
 Until Bloom is accepted for the same robot workflows, this workspace remains the
-stable integration target for `extender_ui`, `tablet_interface`, Sandbox V0.0,
-and the current ROS packages.
+stable integration target for `extender_ui`, `tablet_interface`,
+`cartesian_manager`, `qontrol_controller`, and the current ROS packages.
 
 ## Contributing
 
@@ -358,6 +355,6 @@ and the current ROS packages.
 - Keep generated `build*`, `install*`, `log*`, `.venv/`, and local logs out of
   commits.
 - Commit dependency changes as `pyproject.toml` + `uv.lock` together.
-- Prefer Sandbox V0.0 for new integration work.
+- Prefer `cartesian_manager` and `qontrol_controller` for new integration work.
 - Treat Petanque packages as legacy/example workflows unless the task is
   explicitly Petanque maintenance.
