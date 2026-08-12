@@ -3,37 +3,21 @@ repositories:
     type: git
     url: https://github.com/ISIR-EXTENDER/input_interfaces.git
     version: main 
-  controllers:
-    type: git
-    url: https://github.com/ISIR-EXTENDER/controllers.git
-    version: main
-  sandbox_controller:
-    type: git
-    url: https://github.com/ISIR-EXTENDER/sandbox_controller.git
-    version: main
-  robot_interfaces:
-    type: git
-    url: https://github.com/ISIR-EXTENDER/robot_interfaces.git
-    version: main
   tools:
     type: git
     url: https://github.com/ISIR-EXTENDER/tools.git
     version: main
-  visual_servoing:
-    type: git
-    url: https://github.com/ISIR-EXTENDER/visual_servoing.git
-    version: main
   qontrol_controllers:
     type: git
     url: https://github.com/ISIR-EXTENDER/qontrol_controller.git
-    version: refactor/chained_controller
+    version: topic/isir_manager
   explorer_stack:
     type: git
     url: https://github.com/ISIR-EXTENDER/explorer_stack.git
     version: refactor/launch_and_controllers
-  hub:
+  cartesian_manager:
     type: git
-    url: https://github.com/ISIR-EXTENDER/hub
+    url: https://github.com/ISIR-EXTENDER/cartesian_manager.git
     version: main
   extender-ui:
     type: git
