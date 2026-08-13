@@ -13,8 +13,8 @@ repositories:
     version: topic/isir_manager
   explorer_stack:
     type: git
-    url: https://github.com/ISIR-EXTENDER/explorer_stack.git
-    version: refactor/launch_and_controllers
+    url: https://github.com/ORTHOPUS-EXPLORER/explorer_stack.git
+    version: develop
   cartesian_manager:
     type: git
     url: https://github.com/ISIR-EXTENDER/cartesian_manager.git
