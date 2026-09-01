@@ -29,7 +29,7 @@ and Petanque packages are kept as legacy/example workflows and should not be
 used as the default template for new development.
 
 <p align="center">
-  <img alt="ROS 2" src="https://img.shields.io/badge/ROS%202-Humble-22314e?style=for-the-badge" />
+  <img alt="ROS 2" src="https://img.shields.io/badge/ROS%202-Jazzy-22314e?style=for-the-badge" />
   <img alt="uv" src="https://img.shields.io/badge/uv-Python%20env-4b5563?style=for-the-badge" />
   <img alt="colcon" src="https://img.shields.io/badge/colcon-build-2563eb?style=for-the-badge" />
 </p>
@@ -57,8 +57,8 @@ used as the default template for new development.
   and `qontrol_controller`.
 - Generated ROS folders (`build*`, `install*`, `log*`) are local artifacts and
   should never be committed.
-- Ubuntu 24.04 and the next ROS 2 distribution are an active migration target,
-  but the current documented baseline remains Ubuntu 22.04 with ROS 2 Humble.
+- Ubuntu 24.04 with ROS 2 Jazzy is the documented baseline. The Extender and
+  Kinova computers both run it.
 
 ## Repository Map
 
@@ -86,11 +86,10 @@ Local-only generated folders:
 
 ### 1. Install System Tools
 
-Ubuntu 22.04 and ROS 2 Humble are the current expected baseline.
+Ubuntu 24.04 and ROS 2 Jazzy are the expected baseline.
 
-> Ubuntu 24.04 and the next ROS 2 upgrade are in progress. Do not assume that a
-> fresh Ubuntu 24.04 machine is the reference setup until the migration is
-> validated and this README is updated.
+> Ubuntu 22.04 with ROS 2 Humble is retired. To move an existing Humble machine
+> over, see [Upgrading From Humble](#upgrading-from-humble).
 
 ```bash
 sudo apt update
@@ -103,11 +102,11 @@ sudo apt install -y \
   python3-rosdep \
   python3-vcstool \
   libeigen3-dev \
-  ros-humble-cv-bridge \
-  ros-humble-image-transport \
-  ros-humble-apriltag \
-  ros-humble-apriltag-ros \
-  ros-humble-usb-cam
+  ros-jazzy-cv-bridge \
+  ros-jazzy-image-transport \
+  ros-jazzy-apriltag \
+  ros-jazzy-apriltag-ros \
+  ros-jazzy-usb-cam
 ```
 
 Initialize rosdep once per machine:
@@ -151,7 +150,7 @@ uv sync --extra ros-build --extra dev --extra vision
 ### 5. Install ROS Dependencies
 
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
@@ -262,7 +261,7 @@ those files is incomplete.
 ### Build One Package
 
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source install/setup.bash 2>/dev/null || true
 colcon build --symlink-install --packages-select tablet_interface
 ```
@@ -270,7 +269,7 @@ colcon build --symlink-install --packages-select tablet_interface
 ### Run The Tablet Backend
 
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 cd src/input_interfaces/tablet_interface
 make run-node
@@ -332,6 +331,36 @@ Build only what you need:
 colcon build --symlink-install --packages-select tablet_interface
 colcon build --symlink-install --packages-select cartesian_manager
 ```
+
+### Upgrading From Humble
+
+A `do-release-upgrade` to 24.04 leaves the Humble stack unusable rather than
+merely outdated: its Python packages target 3.10 while the system moves to 3.12,
+so `ros2` stops working even though the C++ libraries still resolve. After the
+release upgrade completes:
+
+```bash
+# repoint the ROS, robotpkg, and kitware sources at noble
+sudo sed -i 's/^Suites: jammy/Suites: noble/' /etc/apt/sources.list.d/ros2.sources
+sudo sed -i 's/ jammy / noble /' \
+  /etc/apt/sources.list.d/robotpkg.list \
+  /etc/apt/sources.list.d/kitware.list
+sudo apt update
+
+sudo apt purge -y 'ros-humble-*'
+sudo apt autoremove -y
+sudo apt install -y ros-jazzy-desktop ros-dev-tools \
+  python3-colcon-common-extensions python3-rosdep python3-vcstool
+```
+
+Three things must then be rebuilt from scratch, because all of them are tied to
+the old Python and the old ROS prefix:
+
+- every `build*`, `install*`, and `log*` folder in the workspace;
+- `.venv` (`rm -rf .venv && uv sync --extra ros-build --extra dev`), since a venv
+  created under Python 3.10 keeps pointing at an interpreter that no longer
+  matches its `site-packages`;
+- any `source /opt/ros/humble/setup.bash` line in your shell rc.
 
 ### A Camera Is Busy
 
