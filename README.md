@@ -298,6 +298,36 @@ cd src/input_interfaces/tablet_interface
 make test
 ```
 
+## Named Joint Targets
+
+`cartesian_manager` moves the arm to named poses through
+`behaviour/joint_target/<name>` on `/mode_request`. The poses themselves live in
+`cartesian_manager/bringup/config/explorer_params.yaml`, not in any UI.
+
+Capture a new one from the robot rather than writing joint angles by hand:
+
+```bash
+source install/setup.bash
+# move the arm to the pose you want, then:
+python3 scripts/capture_joint_target.py boire --merge
+```
+
+It prints the complete `joint_targets` block to paste into the config. Two
+things make this worth a tool: `positions` is a single flattened array across
+every entry in `target_names`, and the manager refuses to start unless
+`len(positions) == len(joint_names) * len(target_names)`. `/joint_states` also
+does not guarantee the manager's joint order, so values are matched by name.
+
+Work offline against a config file instead of a running node:
+
+```bash
+python3 scripts/capture_joint_target.py boire --merge \
+  --params-file src/cartesian_manager/bringup/config/explorer_params.yaml
+```
+
+The config file belongs to `cartesian_manager` upstream, so send the block to
+its maintainer rather than editing a vendored checkout.
+
 ## Common Issues
 
 ### `ModuleNotFoundError: yaml`
