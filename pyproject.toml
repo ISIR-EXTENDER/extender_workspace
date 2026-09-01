@@ -12,6 +12,10 @@ dependencies = [
   "empy>=3.3.4,<4",
   "catkin-pkg>=1.1.0",
   "lark>=1.3.1",
+  # Generated ROS 2 Python messages import numpy, so it is a base dependency,
+  # not a vision-only one. Pinned below 2.0 to match ROS 2 Jazzy's system
+  # extensions on Ubuntu 24.04 (system numpy is 1.26.4).
+  "numpy>=1.24,<2",
 ]
 
 [project.optional-dependencies]
@@ -24,7 +28,6 @@ dev = [
 vision = [
   # MediaPipe-based packages (hand landmarks)
   "mediapipe>=0.10",
-  "numpy>=1.24",
 ]
 
 ros-build = [
