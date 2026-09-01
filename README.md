@@ -362,6 +362,27 @@ the old Python and the old ROS prefix:
   matches its `site-packages`;
 - any `source /opt/ros/humble/setup.bash` line in your shell rc.
 
+### `colcon build` Fails With A CMake Policy Error
+
+Kitware's apt repository ships CMake 4.x, which turns a pre-3.5
+`cmake_minimum_required` into a hard error instead of a warning. Vendored
+third-party trees still trigger it, for example `qpmad`, which
+`qontrol_controller` pulls in through FetchContent:
+
+```text
+CMake Error at build/qontrol_controller/_deps/qpmad-src/CMakeLists.txt:2
+  Compatibility with CMake < 3.5 has been removed from CMake.
+```
+
+Pass the policy escape hatch on every build:
+
+```bash
+colcon build --symlink-install --cmake-args -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+```
+
+Ubuntu 24.04's own CMake (3.28.3) does not need this. Only machines using the
+Kitware repository do.
+
 ### A Camera Is Busy
 
 Close browser tabs or ROS nodes using the same `/dev/video*` device. This matters
