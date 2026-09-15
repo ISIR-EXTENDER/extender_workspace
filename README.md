@@ -66,8 +66,8 @@ Repositories imported by `extender.repos`:
 
 | Folder | Repository | Purpose |
 | --- | --- | --- |
-| `src/input_interfaces` | `ISIR-EXTENDER/input_interfaces` | Input/backend packages, including `tablet_interface`. |
-| `src/tools` | `ISIR-EXTENDER/tools` | Tools such as `apriltag_detector` and shared message packages. |
+| `src/input_interfaces` | `ISIR-EXTENDER/input_interfaces` | Input/backend packages, including `tablet_interface` and `visual_servoing`. |
+| `src/tools` | `ISIR-EXTENDER/tools` | Tools such as `apriltag_detector`, `hub`, and shared message packages. |
 | `src/qontrol_controllers` | `ISIR-EXTENDER/qontrol_controller` | Active controller integration for robot motion. |
 | `src/cartesian_manager` | `ISIR-EXTENDER/cartesian_manager` | Manager layer that routes Cartesian commands and named joint targets to `qontrol_controller`. |
 | `src/explorer_stack` | `ISIR-EXTENDER/explorer_stack` | Explorer robot stack and `explorer_input_devices`. |
