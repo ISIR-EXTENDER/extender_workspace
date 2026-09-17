@@ -15,6 +15,14 @@ repositories:
     type: git
     url: https://github.com/ORTHOPUS-EXPLORER/explorer_stack.git
     version: develop
+  ros2_kortex:
+    type: git
+    url: https://github.com/Kinovarobotics/ros2_kortex.git
+    version: jazzy
+  ros2_robotiq_gripper:
+    type: git
+    url: https://github.com/PickNikRobotics/ros2_robotiq_gripper.git
+    version: main
   cartesian_manager:
     type: git
     url: https://github.com/ISIR-EXTENDER/cartesian_manager.git

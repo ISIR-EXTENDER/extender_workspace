@@ -74,6 +74,8 @@ Repositories imported by `extender.repos`:
 | `src/qontrol_controllers` | `ISIR-EXTENDER/qontrol_controller` | Active controller integration for robot motion. |
 | `src/cartesian_manager` | `ISIR-EXTENDER/cartesian_manager` | Manager layer that routes Cartesian commands and named joint targets to `qontrol_controller`. |
 | `src/explorer_stack` | `ISIR-EXTENDER/explorer_stack` | Explorer robot stack and `explorer_input_devices`. |
+| `src/ros2_kortex` | `Kinovarobotics/ros2_kortex` (`jazzy`) | Kinova gen3 description used by `kinova.launch.py`. Only `kortex_description` is built. |
+| `src/ros2_robotiq_gripper` | `PickNikRobotics/ros2_robotiq_gripper` (`main`) | Robotiq 2F-85 description the gen3 URDF includes. |
 | `src/extender-ui` | `ISIR-EXTENDER/extender_ui` | Legacy React tablet frontend, kept as a rollback while Bloom is accepted. |
 
 Local-only generated folders:
@@ -330,6 +332,35 @@ python3 scripts/capture_joint_target.py boire --merge \
 
 The config file belongs to `cartesian_manager` upstream, so send the block to
 its maintainer rather than editing a vendored checkout.
+
+## Kinova On Jazzy
+
+`ros2 launch cartesian_manager kinova.launch.py` builds the gen3 URDF from
+`kortex_description`, which includes `robotiq_description`. Both arrive with
+`vcs import`. Only their description packages are needed, so the rest of those
+two repositories carries a local `COLCON_IGNORE`:
+
+```bash
+for p in ros2_kortex/kortex_api ros2_kortex/kortex_driver ros2_kortex/kortex_bringup \
+         ros2_kortex/kortex_moveit_config ros2_robotiq_gripper/robotiq_driver \
+         ros2_robotiq_gripper/robotiq_controllers ros2_robotiq_gripper/robotiq_hardware_tests; do
+  touch "src/$p/COLCON_IGNORE"
+done
+colcon build --symlink-install --packages-select kortex_description robotiq_description
+```
+
+The versions matter. `kortex_description` 0.2.3, the copy in the older
+`kinova_ros2_ws`, writes a `mimic` attribute on the Robotiq knuckle joints that
+Jazzy's `ros2_control` refuses with *Joint 'robotiq_85_right_knuckle_joint' has
+mimic attribute*; the controller manager then loads no hardware and no
+controller spawns. The `jazzy` branch (0.2.6) with `robotiq_description` from
+source works. The apt `ros-jazzy-robotiq-description` 0.0.1 is too old for it.
+
+Then the simulation runs on fake hardware:
+
+```bash
+ros2 launch cartesian_manager kinova.launch.py use_simulation:=true gui:=false
+```
 
 ## Common Issues
 
