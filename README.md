@@ -14,14 +14,17 @@ operator inputs and robot integrations
   -> qontrol_controller
 ```
 
-For tablet-based integration tests, the current stable operator path is:
+The operator interface is [Bloom](https://github.com/ISIR-EXTENDER/bloom):
 
 ```text
-extender_ui
-  -> input_interfaces/tablet_interface
+Bloom (browser -> FastAPI + ROS adapters)
   -> cartesian_manager
   -> qontrol_controller
 ```
+
+`extender_ui` with `input_interfaces/tablet_interface` is the legacy path. It
+stays importable as a behaviour reference and emergency rollback until Bloom's
+live sessions are accepted.
 
 New teleoperation workflows should go through `cartesian_manager` and keep robot
 control authority in `qontrol_controller`. Older standalone controller packages
@@ -41,7 +44,7 @@ used as the default template for new development.
   <a href="#uv-how-to">uv How-To</a> ·
   <a href="#build-and-run">Build And Run</a> ·
   <a href="#common-issues">Common Issues</a> ·
-  <a href="#bloom-migration">Bloom Migration</a>
+  <a href="#bloom">Bloom</a>
 </p>
 
 ## Current State
@@ -50,8 +53,8 @@ used as the default template for new development.
 - Workspace-level `pyproject.toml` and `uv.lock`.
 - Shared Python dependencies for `tablet_interface`, ROS build helpers, tests,
   and optional vision tools.
-- `extender_ui` is imported through `extender.repos` so frontend/backend work can
-  be kept in one local workspace.
+- `extender_ui` is imported through `extender.repos` as the legacy operator
+  interface and rollback; new operator work goes to Bloom.
 - `qontrol_controller` is the active robot controller integration.
 - `cartesian_manager` is the coordination layer between operator command sources
   and `qontrol_controller`.
@@ -71,7 +74,7 @@ Repositories imported by `extender.repos`:
 | `src/qontrol_controllers` | `ISIR-EXTENDER/qontrol_controller` | Active controller integration for robot motion. |
 | `src/cartesian_manager` | `ISIR-EXTENDER/cartesian_manager` | Manager layer that routes Cartesian commands and named joint targets to `qontrol_controller`. |
 | `src/explorer_stack` | `ISIR-EXTENDER/explorer_stack` | Explorer robot stack and `explorer_input_devices`. |
-| `src/extender-ui` | `ISIR-EXTENDER/extender_ui` | React tablet frontend and screen builder. |
+| `src/extender-ui` | `ISIR-EXTENDER/extender_ui` | Legacy React tablet frontend, kept as a rollback while Bloom is accepted. |
 
 Local-only generated folders:
 
@@ -419,15 +422,46 @@ Close browser tabs or ROS nodes using the same `/dev/video*` device. This matter
 when switching between browser webcam widgets and ROS camera nodes such as
 `usb_cam`.
 
-## Bloom Migration
+## Bloom
 
-[`Bloom`](https://github.com/ISIR-EXTENDER/bloom) is the WIP next-generation
-robot UI platform. It is being developed as a monorepo that combines frontend,
-backend API, widget contracts, runtime safety rules, storage, and ROS adapters.
+[`Bloom`](https://github.com/ISIR-EXTENDER/bloom) is the active Extender
+operator interface. It combines the builder, a kiosk runtime with a latched STOP,
+accessible input profiles, and ROS adapters for `cartesian_manager`. Its
+[Extender tutorial](https://github.com/ISIR-EXTENDER/bloom#extender-tutorial)
+starts Explorer in simulation or Kinova with fake hardware against this
+workspace.
 
-Until Bloom is accepted for the same robot workflows, this workspace remains the
-stable integration target for `extender_ui`, `tablet_interface`,
-`cartesian_manager`, `qontrol_controller`, and the current ROS packages.
+New operator work belongs in Bloom. `extender_ui` and `tablet_interface` are
+legacy: keep them buildable as a rollback until Bloom's live sessions are
+accepted, but do not add features there.
+
+### Explorer simulation on Jazzy
+
+`ros2 launch cartesian_manager explorer.launch.py use_simulation:=true` does not
+reach a moving arm on the current Jazzy install without two runtime workarounds.
+Both belong to `explorer_stack` upstream; report them rather than patching the
+checkout.
+
+1. The launch starts a standalone `ros2_control_node` that cannot load
+   `gz_ros2_control/GazeboSimSystem`, then waits for `robot_description` instead
+   of exiting. The robot is only spawned into Gazebo when that process exits,
+   so nothing else starts. Once the log prints `Waiting for data on
+   'robot_description'`, stop that one process:
+
+   ```bash
+   kill "$(pgrep -f '[r]os2_control_node')"
+   ```
+
+2. Nothing bridges the Gazebo clock, and with `use_sim_time` `qontrol_explorer`
+   never publishes `/ee_pose`, `/ee_velocity` or `/ee_jac`. Bridge it:
+
+   ```bash
+   ros2 run ros_gz_bridge parameter_bridge "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
+   ```
+
+`qontrol_explorer`, `gripper_controller` and `joint_state_broadcaster` then come
+up active, and the passive gripper joints report `NaN` velocity and effort on
+`/joint_states`.
 
 ## Contributing
 
