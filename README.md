@@ -65,7 +65,7 @@ used as the default template for new development.
 
 ## Repository Map
 
-Repositories imported by `extender.repos`:
+Repositories imported by `setup_workspace.sh`:
 
 | Folder | Repository | Purpose |
 | --- | --- | --- |
@@ -74,8 +74,8 @@ Repositories imported by `extender.repos`:
 | `src/qontrol_controllers` | `ISIR-EXTENDER/qontrol_controller` | Active controller integration for robot motion. |
 | `src/cartesian_manager` | `ISIR-EXTENDER/cartesian_manager` | Manager layer that routes Cartesian commands and named joint targets to `qontrol_controller`. |
 | `src/explorer_stack` | `ISIR-EXTENDER/explorer_stack` | Explorer robot stack and `explorer_input_devices`. |
-| `src/ros2_kortex` | `Kinovarobotics/ros2_kortex` (`jazzy`) | Kinova gen3 description used by `kinova.launch.py`. Only `kortex_description` is built. |
-| `src/ros2_robotiq_gripper` | `PickNikRobotics/ros2_robotiq_gripper` (`main`) | Robotiq 2F-85 description the gen3 URDF includes. |
+| `src/ros2_kortex` | `Kinovarobotics/ros2_kortex` (`jazzy`) | Optional Kinova gen3 description used by `kinova.launch.py`. Only `kortex_description` is built. |
+| `src/ros2_robotiq_gripper` | `PickNikRobotics/ros2_robotiq_gripper` (`main`) | Optional Kinova dependency: Robotiq 2F-85 description included by the gen3 URDF. |
 | `src/extender-ui` | `ISIR-EXTENDER/extender_ui` | Legacy React tablet frontend, kept as a rollback while Bloom is accepted. |
 
 Local-only generated folders:
@@ -132,13 +132,23 @@ cd extender_workspace
 
 ### 3. Import Repositories
 
-Run `vcs import` from the workspace repository root:
+Run the setup script from the workspace repository root. By default it imports
+the shared repositories, including `explorer_stack`:
 
 ```bash
-vcs import src < extender.repos --workers 1
+bash setup_workspace.sh
 ```
 
-This populates `src/` with the repositories listed in `extender.repos`.
+To include the Kinova stack as well, set `WITH_KORTEX=1`:
+
+```bash
+WITH_KORTEX=1 bash setup_workspace.sh
+```
+
+The Kinova option imports `kinova.repos` and the additional Jazzy dependencies
+listed by `ros2_kortex`. You can run the script again to add Kinova later;
+`--skip-existing` keeps repositories already present in `src/`. The script does
+not remove an existing robot stack.
 
 ### 4. Install Python Dependencies With uv
 
@@ -336,9 +346,10 @@ its maintainer rather than editing a vendored checkout.
 ## Kinova On Jazzy
 
 `ros2 launch cartesian_manager kinova.launch.py` builds the gen3 URDF from
-`kortex_description`, which includes `robotiq_description`. Both arrive with
-`vcs import`. Only their description packages are needed, so the rest of those
-two repositories carries a local `COLCON_IGNORE`:
+`kortex_description`, which includes `robotiq_description`. Run
+`WITH_KORTEX=1 bash setup_workspace.sh` to import them. Only their description
+packages are needed. Mark the other packages in those repositories with
+local `COLCON_IGNORE` files:
 
 ```bash
 for p in ros2_kortex/kortex_api ros2_kortex/kortex_driver ros2_kortex/kortex_bringup \
@@ -376,16 +387,17 @@ uv sync --extra ros-build --extra dev
 `PyYAML` is part of the base workspace dependencies because
 `tablet_interface` uses it for typed ROS message payloads.
 
-### `vcs import` Clones In The Wrong Place
+### Repositories Clone In The Wrong Place
 
-Run from the workspace repository root:
+Run the setup script from the workspace repository root, where the `.repos`
+files live:
 
 ```bash
 cd /path/to/extender_workspace
-vcs import src < extender.repos --workers 1
+bash setup_workspace.sh
 ```
 
-Do not run the command from inside `src/`.
+Do not run it from inside `src/`.
 
 ### Colcon Builds Too Much
 
