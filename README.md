@@ -349,17 +349,22 @@ its maintainer rather than editing a vendored checkout.
 `ros2 launch cartesian_manager kinova.launch.py` builds the gen3 URDF from
 `kortex_description`, which includes `robotiq_description`. Run
 `WITH_KORTEX=1 bash setup_workspace.sh` to import them. Only their description
-packages are needed. Mark the other packages in those repositories with
-local `COLCON_IGNORE` files:
+packages and the camera driver are needed. Mark the other packages, and the
+repositories `ros2_kortex` pulls in, with local `COLCON_IGNORE` files:
 
 ```bash
 for p in ros2_kortex/kortex_api ros2_kortex/kortex_driver ros2_kortex/kortex_bringup \
          ros2_kortex/kortex_moveit_config ros2_robotiq_gripper/robotiq_driver \
-         ros2_robotiq_gripper/robotiq_controllers ros2_robotiq_gripper/robotiq_hardware_tests; do
+         ros2_robotiq_gripper/robotiq_controllers ros2_robotiq_gripper/robotiq_hardware_tests \
+         picknik_controllers gz_ros2_control serial; do
   touch "src/$p/COLCON_IGNORE"
 done
-colcon build --symlink-install --packages-select kortex_description robotiq_description
+sudo apt install -y gstreamer1.0-plugins-good gstreamer1.0-libav
+colcon build --symlink-install --packages-select kortex_description robotiq_description kinova_vision
 ```
+
+`kinova_vision` reads the gen3's integrated camera over RTSP, which needs the
+two GStreamer plugin packages above at runtime.
 
 The versions matter. `kortex_description` 0.2.3, the copy in the older
 `kinova_ros2_ws`, writes a `mimic` attribute on the Robotiq knuckle joints that
