@@ -76,6 +76,7 @@ Repositories imported by `setup_workspace.sh`:
 | `src/explorer_stack` | `ISIR-EXTENDER/explorer_stack` | Explorer robot stack and `explorer_input_devices`. |
 | `src/ros2_kortex` | `Kinovarobotics/ros2_kortex` (`jazzy`) | Optional Kinova gen3 description used by `kinova.launch.py`. Only `kortex_description` is built. |
 | `src/ros2_robotiq_gripper` | `PickNikRobotics/ros2_robotiq_gripper` (`main`) | Optional Kinova dependency: Robotiq 2F-85 description included by the gen3 URDF. |
+| `src/ros2_kortex_vision` | `Kinovarobotics/ros2_kortex_vision` (`ros2`) | Optional Kinova gen3 integrated camera driver, `kinova_vision`, started by `camera_interface`. |
 | `src/extender-ui` | `ISIR-EXTENDER/extender_ui` | Legacy React tablet frontend, kept as a rollback while Bloom is accepted. |
 
 Local-only generated folders:
