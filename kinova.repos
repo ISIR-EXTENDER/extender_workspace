@@ -1,8 +1,8 @@
 repositories:
   ros2_kortex:
     type: git
-    url: https://github.com/Kinovarobotics/ros2_kortex.git
-    version: jazzy
+    url: https://github.com/ISIR-EXTENDER/ros2_kortex.git
+    version: topic/infinite_limits
   ros2_robotiq_gripper:
     type: git
     url: https://github.com/PickNikRobotics/ros2_robotiq_gripper.git
